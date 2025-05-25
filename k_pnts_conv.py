@@ -1,10 +1,9 @@
-from ase.io import read, write
-from ase.visualize import view
+from ase.io import read
 from ase.calculators.espresso import Espresso
-from ase.optimize import BFGS # For optimization
 import os
 import csv # For writing CSV files
 
+# --- System and Pseudopotential Definitions ---
 crystals = ['TiN', 'ZrN', 'NbN', 'ScN', 'VN']
 pseudopotentials = {'Ti': 'ti_pbe_v1.4.uspp.F.UPF',
                     'Zr': 'Zr_pbe_v1.uspp.F.UPF',
@@ -13,20 +12,30 @@ pseudopotentials = {'Ti': 'ti_pbe_v1.4.uspp.F.UPF',
                     'V': 'v_pbe_v1.4.uspp.F.UPF',
                     'N': 'N.pbe-n-radius_5.UPF'}
 
-ecutwfc_values_ev = range(500, 651, 25) # From 500 to 600 eV, in steps of 25 eV
+# --- Fixed Parameters for K-point Convergence ---
+fixed_ecutwfc_ev = 600 # Fixed energy cutoff for k-point convergence
 eV_to_Ry = 1.0 / 13.6057  # Conversion factor from eV to Ry
+fixed_ecutwfc_ry = fixed_ecutwfc_ev * eV_to_Ry
+
+# Define the k-point mesh values to test
+kpts_values = [(i, i, i) for i in range(3, 8)] # (3,3,3) to (7,7,7)
 
 # Dictionary to store energies for CSV output
-# The structure will be: {ecutwfc: {crystal_name: energy, ...}}
-energies_data_for_csv = {ecut: {} for ecut in ecutwfc_values_ev}
+# Structure: {kpt_tuple: {crystal_name: energy, ...}}
+energies_data_for_csv = {kpt: {} for kpt in kpts_values}
+
+print(f"Starting K-point convergence test with fixed ecutwfc = {fixed_ecutwfc_ev} eV.")
+print(f"Testing k-point meshes: {kpts_values}")
+print("="*80)
 
 for crystal in crystals:
     # Create an output directory for each crystal's Quantum ESPRESSO calculations
-    output_dir = f'{crystal}_calculations'
+    # This keeps output files organized by crystal
+    output_dir = f'{crystal}_k_point_calculations'
     os.makedirs(output_dir, exist_ok=True) # Creates the directory if it does not already exist
 
     # Read the crystal structure from a .cif file
-    # Note: If your .cif files are in a different directory, adjust the path here.
+    # Ensure your .cif files (e.g., TiN.cif, ZrN.cif) are in the script's directory
     atoms = read(f'{crystal}.cif')
 
     # Prepare the pseudopotentials dictionary for the current crystal
@@ -36,12 +45,8 @@ for crystal in crystals:
             raise ValueError(f"Pseudopotential for {symbol} not found in the 'pseudopotentials' dictionary.")
         calc_pseudopotentials[symbol] = pseudopotentials[symbol]
 
-    for ecutwfc_ev in ecutwfc_values_ev:
-        # Convert the wavefunction cutoff energy from eV to Ry for Quantum ESPRESSO
-        ecutwfc_ry = ecutwfc_ev * eV_to_Ry
-
+    for kpt_tuple in kpts_values:
         # Define the input settings for the Quantum ESPRESSO calculation
-        # Adding PBE (input_dft) and Grimme D3 correction (vdw_corr='D3')
         input_settings = {
             'control': {
                 'calculation': 'scf',  # Self-consistent field calculation
@@ -49,59 +54,59 @@ for crystal in crystals:
                 'outdir': output_dir,  # Specify the output directory for QE files
             },
             'system': {
-                'ecutwfc': ecutwfc_ry,      # Wavefunction cutoff energy in Ry
-                'ecutrho': ecutwfc_ry * 8,  # Charge density cutoff (typically 4-8 times ecutwfc)
-                'occupations': 'smearing',  # Method for smearing electron occupations
-                'smearing': 'gaussian',     # Type of smearing (Gaussian distribution)
-                'degauss': 0.01,            # Smearing width in Ry
+                'ecutwfc': fixed_ecutwfc_ry, # Use the fixed energy cutoff
+                'ecutrho': fixed_ecutwfc_ry * 8, # Charge density cutoff
+                'occupations': 'smearing',
+                'smearing': 'gaussian',
+                'degauss': 0.01,
                 'input_dft': 'pbe',         # Specify PBE functional
                 'vdw_corr': 'dft-d3',
                 'dftd3_version' : 4 # Apply Grimme D3 empirical dispersion correction
             },
             'electrons': {
-                'conv_thr': 1.0e-8,         # Electronic convergence threshold
+                'conv_thr': 1.0e-8,    # Electronic convergence threshold
             },
         }
 
-        # Define the k-point mesh for the Brillouin zone sampling
-        kpts = (5, 5, 5)
-
-        # Initialize the Espresso calculator with the pseudopotentials, input settings, and k-points
+        # Initialize the Espresso calculator
         calc = Espresso(pseudopotentials=calc_pseudopotentials,
                         input_data=input_settings,
-                        kpts=kpts)
+                        kpts=kpt_tuple) # Use the current k-point tuple
         
-        # Attach the calculator to the atoms object
         atoms.set_calculator(calc)
 
         try:
             # Run the calculation and get the potential energy
-            # Since we're doing SCF for convergence, we just get energy.
-            # If you wanted to fully optimize geometry, you'd use BFGS here.
-            # For this cutoff convergence, we assume fixed geometry.
             energy = atoms.get_potential_energy()
-            energies_data_for_csv[ecutwfc_ev][crystal] = energy
-            print(f"Calculated {crystal} with ecutwfc: {ecutwfc_ev} eV, Energy: {energy:.4f} eV")
+            energies_data_for_csv[kpt_tuple][crystal] = energy
+            print(f"Calculated {crystal} with kpts: {kpt_tuple}, Energy: {energy:.4f} eV")
         except Exception as e:
             # Handle cases where the calculation might fail
-            energies_data_for_csv[ecutwfc_ev][crystal] = "Failed"
-            print(f"Calculation failed for {crystal} with ecutwfc: {ecutwfc_ev} eV. Error: {e}")
+            energies_data_for_csv[kpt_tuple][crystal] = "Failed"
+            print(f"Calculation failed for {crystal} with kpts: {kpt_tuple}. Error: {e}")
+
+print("\n" + "="*80)
+print("All calculations complete. Writing results to CSV.")
+print("="*80)
 
 # --- Output results to a CSV file ---
-csv_filename = "crystal_e_convergence.csv"
+csv_filename = "k_pnts.csv"
 
 with open(csv_filename, 'w', newline='') as csvfile:
     writer = csv.writer(csvfile)
 
     # Write the header row
-    header = ['ecutwfc (eV)'] + crystals
+    header = ['k_points'] + crystals
     writer.writerow(header)
 
     # Write data rows
-    for ecutwfc_ev in ecutwfc_values_ev:
-        row_data = [ecutwfc_ev]
+    # Sort kpts_values for consistent output order
+    sorted_kpts_values = sorted(kpts_values) 
+    for kpt_tuple in sorted_kpts_values:
+        # Represent k-point tuple as a string, e.g., "(3, 3, 3)"
+        row_data = [str(kpt_tuple)] 
         for crystal in crystals:
-            energy = energies_data_for_csv[ecutwfc_ev].get(crystal, "N/A")
+            energy = energies_data_for_csv[kpt_tuple].get(crystal, "N/A")
             if isinstance(energy, float):
                 row_data.append(f"{energy:.4f}") # Format float for CSV
             else:
