@@ -47,7 +47,8 @@ for crystal in crystals:
             'calculation': 'scf', # Changed to scf; ASE BFGS controls relaxation loop
             'prefix': crystal,
             'outdir': output_dir,
-            # Removed: pseudo_dir, tprnfor, tstress (as per request)
+            'tprnfor': True,           # Print forces in output
+            'tstress': True,           # Print stress in output
         },
         'system': {
             'ecutwfc': fixed_ecutwfc_ry,
