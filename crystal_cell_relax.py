@@ -2,7 +2,7 @@ import os
 from ase.io import read, write
 from ase.calculators.espresso import Espresso
 from ase.optimize import BFGS # Import ASE's BFGS optimizer
-from ase.constraints import ExpCellFilter # For variable-cell optimization with ASE optimizers
+from ase.constraints import ExpCellFilter # CORRECTED: Import from ase.constraints
 import numpy as np # Still useful for np.linspace, if used elsewhere
 
 # --- System and Pseudopotential Definitions ---
@@ -60,7 +60,7 @@ for crystal in crystals:
             'dftd3_version': 4,
         },
         'electrons': {
-            'conv_thr': 1.0e-8,
+            'conv_thr': 1.0e-7,
             'mixing_beta': 0.7,
         },
         # Removed: 'ions' and 'cell' sections (as per request)
@@ -72,7 +72,7 @@ for crystal in crystals:
                     kpts=fixed_kpts)
     
     # Assign the calculator to the atoms object
-    initial_atoms.set_calculator(calc)
+    initial_atoms.calc= calc
 
     final_energy = "Failed"
     relaxed_lattice_constant = "Failed"
@@ -85,8 +85,8 @@ for crystal in crystals:
         f = ExpCellFilter(initial_atoms) 
         
         # Define trajectory and log file names
-        log_filename = f'{crystal}_ase_optimize.log'
-        traj_filename = f'{crystal}_ase_optimize.traj'
+        log_filename = f'{crystal}_ase_opt.log'
+        traj_filename = f'{crystal}_ase_opt.traj'
 
         # Initialize the BFGS optimizer
         # The 'f' argument is the atoms object (or filter) to be optimized
