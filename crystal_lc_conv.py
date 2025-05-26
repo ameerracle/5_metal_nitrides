@@ -1,4 +1,6 @@
 import matplotlib.pyplot as plt
+from ase.io import read
+from ase.calculators.espresso import Espresso
 import numpy as np
 import os
 import csv
