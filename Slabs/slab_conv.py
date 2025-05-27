@@ -1,11 +1,11 @@
 from ase.io import read, write
-from ase.atoms import Atoms # Keep if potentially used for other parts, though not for direct slab making here
-from ase.build import surface # Keep if needed for *future* slab generation, but not used in this specific run
-from ase.visualize import view # Keep if user wants to view the loaded slab
-from ase.constraints import FixAtoms # Keep if constraints are loaded from .traj or needed for future ops
+from ase.atoms import Atoms 
+from ase.build import surface 
+from ase.visualize import view 
+from ase.constraints import FixAtoms 
 from ase.calculators.espresso import Espresso
 import os
-import csv # Import the csv module for saving data
+import csv 
 
 # --- Define Pseudopotential Filenames based on PP_list_SSP.txt ---
 # Make sure these filenames match exactly what's in your PP_list_SSP.txt
@@ -22,7 +22,15 @@ pseudopotential_files = {
 # Choose the slab to test (e.g., TiN)
 test_material = 'TiN' # You can change this to 'VN', 'ScN', 'NbN', or 'ZrN'
 
-slab = read('TiN_slab_100.traj')
+# Load the already-made slab structure from the current directory
+slab_filename = f'{test_material}_slab_100.traj'
+print(f"Attempting to load slab from: {slab_filename}")
+
+if not os.path.exists(slab_filename):
+    print(f"Error: Slab file not found at {slab_filename}. Please ensure the file exists in the current directory.")
+    exit() # Exit if the slab file doesn't exist
+
+slab = read(slab_filename)
 
 # Optional: View the loaded slab in ASE GUI (uncomment if you want to see it)
 # view(slab) 
@@ -75,8 +83,8 @@ for kpt in k_points_range:
         print(f"  Calculation failed for k-points {kpt}: {e}")
         k_point_energies.append(None) # Mark as failed
 
-# Save k-point convergence data to CSV
-csv_kpoint_filename = os.path.join(slab_dir, f'{test_material}_kpoint_convergence.csv')
+# Save k-point convergence data to CSV in the current directory
+csv_kpoint_filename = f'{test_material}_kpoint_convergence.csv'
 with open(csv_kpoint_filename, 'w', newline='') as csvfile:
     writer = csv.writer(csvfile)
     writer.writerow(['K-point Mesh (nx)', 'K-point Mesh (ny)', 'K-point Mesh (nz)', 'Energy per Atom (eV)'])
@@ -93,7 +101,7 @@ ecutwfc_range = [25, 30, 35, 40, 45, 50, 55, 60, 65, 70] # Example range in Ry
 
 # Use a reasonably dense k-point mesh (e.g., one from the converged k-point test, or start with 6x6x1)
 # IMPORTANT: After your k-point test, replace this with the actual converged k-point mesh!
-converged_kpts = (6, 6, 1) # <--- UPDATE THIS after running K-point test
+converged_kpts = (7, 7, 1) # <--- UPDATE THIS after running K-point test
 
 ecut_energies = []
 for ecut in ecutwfc_range:
@@ -120,8 +128,8 @@ for ecut in ecutwfc_range:
         print(f"  Calculation failed for ecutwfc {ecut}: {e}")
         ecut_energies.append(None) # Mark as failed
 
-# Save ecutwfc convergence data to CSV
-csv_ecutwfc_filename = os.path.join(slab_dir, f'{test_material}_ecutwfc_convergence.csv')
+# Save ecutwfc convergence data to CSV in the current directory
+csv_ecutwfc_filename = f'{test_material}_ecutwfc_convergence.csv'
 with open(csv_ecutwfc_filename, 'w', newline='') as csvfile:
     writer = csv.writer(csvfile)
     writer.writerow(['Ecutwfc (Ry)', 'Energy per Atom (eV)'])
