@@ -2,7 +2,7 @@ import os
 import sys 
 from ase.io import read, write
 from ase.calculators.espresso import Espresso
-from ase.optimize import Fire2 # Changed from BFGS to Fire2
+from ase.optimize import fire2 # Changed from BFGS to Fire2
 from ase.constraints import ExpCellFilter 
 import numpy as np 
 
