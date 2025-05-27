@@ -1,10 +1,9 @@
 import os
-import sys 
 from ase.io import read, write
 from ase.calculators.espresso import Espresso
-from ase.optimize import fire2 # Changed from BFGS to Fire2
-from ase.constraints import ExpCellFilter 
-import numpy as np 
+from ase.optimize import fire2 # Import ASE's fire2 optimizer
+from ase.filters import ExpCellFilter # CORRECTED: Import from ase.constraints
+import numpy as np # Still useful for np.linspace, if used elsewhere
 
 # --- System and Pseudopotential Definitions ---
 crystals = ['TiN', 'ZrN', 'NbN', 'ScN', 'VN']
@@ -22,65 +21,34 @@ eV_to_Ry = 1.0 / 13.6057
 fixed_ecutwfc_ry = fixed_ecutwfc_ev * eV_to_Ry
 
 # --- ASE Optimizer Settings ---
-fmax_threshold = 0.01 # eV/Angstrom 
-max_opt_steps = 2000  # Maximum number of optimization steps (as requested)
+fmax_threshold = 0.01 # eV/Angstrom (as specified)
 
-# --- Check for Quantum ESPRESSO Executable ---
-espresso_command = os.environ.get('ASE_ESPRESSO_COMMAND')
-if not espresso_command:
-    print("CRITICAL ERROR: 'ASE_ESPRESSO_COMMAND' environment variable is not set.")
-    print("Please set it to the command that executes Quantum ESPRESSO's pw.x,")
-    print("e.g., 'export ASE_ESPRESSO_COMMAND=\"pw.x\"' or 'export ASE_ESPRESSO_COMMAND=\"mpirun -np 4 pw.x\"'.")
-    sys.exit(1) 
-
-if 'pw.x' not in espresso_command:
-    print("WARNING: 'ASE_ESPRESSO_COMMAND' does not contain 'pw.x'. Make sure it's correctly configured.")
-
-# --- SET OMP_NUM_THREADS to 1 ---
-os.environ['OMP_NUM_THREADS'] = '1' 
-print(f"Setting OMP_NUM_THREADS={os.environ['OMP_NUM_THREADS']} for Quantum ESPRESSO calculations.")
-
-
-print(f"Starting Optimization using ASE's Fire2 algorithm.")
-print(f"  Quantum ESPRESSO Command: {espresso_command}")
-print(f"  Fixed DFT Parameters: ecutwfc = {fixed_ecutwfc_ev} eV, kpts = {fixed_kpts}")
-print(f"  ASE Fire2 Optimization Criteria: fmax = {fmax_threshold} eV/Angstrom, max_steps = {max_opt_steps}")
-print("="*80)
-
-optimization_results = {} 
+optimization_results = {} # Dictionary to store final results
 
 for crystal in crystals:
-    output_dir = f'{crystal}_ase_fire2_calculations' # Changed output directory name
+    # Create a dedicated output directory for each crystal's QE calculations
+    output_dir = f'{crystal}_ase_calculations'
     os.makedirs(output_dir, exist_ok=True) 
 
-    try:
-        initial_atoms = read(f'{crystal}.cif')
-        initial_a = initial_atoms.get_cell()[0, 0] 
-        print(f"\nProcessing {crystal}. Initial structure loaded from {crystal}.cif")
-        print(f"  Initial Lattice Constant: {initial_a:.4f} Å")
-    except FileNotFoundError:
-        print(f"ERROR: {crystal}.cif not found. Skipping {crystal}.")
-        optimization_results[crystal] = {'status': 'CIF not found'}
-        continue 
-    except Exception as e:
-        print(f"ERROR: Could not read {crystal}.cif - {e}. Skipping {crystal}.")
-        optimization_results[crystal] = {'status': f'Error reading CIF: {e}'}
-        continue 
+    # Read the initial crystal structure
+    initial_atoms = read(f'{crystal}.cif')
+    initial_a = initial_atoms.get_cell()[0, 0] # Initial lattice constant
 
+    # Prepare the pseudopotentials dictionary for the current crystal
     calc_pseudopotentials = {}
     for symbol in initial_atoms.get_chemical_symbols():
         if symbol not in pseudopotentials:
-            print(f"ERROR: Pseudopotential for {symbol} not found in the 'pseudopotentials' dictionary for {crystal}. Skipping.")
-            optimization_results[crystal] = {'status': f'Missing pseudopotential for {symbol}'}
-            continue 
+            raise ValueError(f"Pseudopotential for {symbol} not found in the 'pseudopotentials' dictionary.")
         calc_pseudopotentials[symbol] = pseudopotentials[symbol]
 
+    # --- Quantum ESPRESSO Input Settings (now just for SCF calculations) ---
     input_settings = {
         'control': {
-            'calculation': 'scf', 
+            'calculation': 'scf', # Changed to scf; ASE BFGS controls relaxation loop
             'prefix': crystal,
             'outdir': output_dir,
-            # Removed tprnfor and tstress as per request
+            'tprnfor': True,           # Print forces in output
+            'tstress': True,           # Print stress in output
         },
         'system': {
             'ecutwfc': fixed_ecutwfc_ry,
@@ -93,41 +61,53 @@ for crystal in crystals:
             'dftd3_version': 4,
         },
         'electrons': {
-            'conv_thr': 1.0e-7, # Tightened SCF convergence slightly, as requested
+            'conv_thr': 1.0e-7,
             'mixing_beta': 0.7,
         },
+        # Removed: 'ions' and 'cell' sections (as per request)
     }
 
-    calc = Espresso(command=espresso_command, 
-                    pseudopotentials=calc_pseudopotentials,
+    # Initialize the Espresso calculator
+    calc = Espresso(pseudopotentials=calc_pseudopotentials,
                     input_data=input_settings,
                     kpts=fixed_kpts)
     
-    initial_atoms.set_calculator(calc) 
+    # Assign the calculator to the atoms object
+    initial_atoms.calc= calc
 
     final_energy = "Failed"
     relaxed_lattice_constant = "Failed"
     status = "Failed"
 
     try:
+        # --- Set up ASE's  Optimizer ---
+        # ExpCellFilter wraps the atoms object to allow cell optimization
+        # The optimizer will operate on 'f' which represents the atoms object and its cell
         f = ExpCellFilter(initial_atoms) 
         
-        log_filename = f'{crystal}_ase_opt.log' # Log file name
-        traj_filename = f'{crystal}_ase_opt.traj' # Trajectory file name
+        # Define trajectory and log file names
+        log_filename = f'{crystal}_ase_opt.log'
+        traj_filename = f'{crystal}_ase_opt.traj'
 
-        opt = Fire2(f, trajectory=traj_filename, logfile=log_filename) # Changed to Fire2
+        # Initialize the  optimizer
+        # The 'f' argument is the atoms object (or filter) to be optimized
 
-        opt.run(fmax=fmax_threshold, steps=max_opt_steps) # Added steps limit
+        opt = fire2(f, trajectory=traj_filename, logfile=log_filename)
 
-        final_energy = initial_atoms.get_potential_energy() 
+        # It will call the calculator (Espresso) at each step.
+        opt.run(fmax=fmax_threshold, steps=2000)
+
+        # After optimization, the initial_atoms object is updated with the relaxed structure
+        final_energy = initial_atoms.get_potential_energy() # Get final energy from relaxed structure
         relaxed_cell = initial_atoms.get_cell()
-        relaxed_lattice_constant = relaxed_cell[0, 0] 
+        relaxed_lattice_constant = relaxed_cell[0, 0] # Assuming cubic cell
 
-        relaxed_filename = f'{crystal}_relaxed_ase_fire2.cif' # Changed output CIF name
+        # Save the final optimized structure to a new CIF file
+        relaxed_filename = f'{crystal}_relaxed_ase_bfgs.cif'
         write(relaxed_filename, initial_atoms)
 
         status = "Converged"
-        print(f"  {crystal} ASE Fire2 Optimization Completed Successfully.") # Updated message
+        print(f"  {crystal} ASE BFGS Optimization Completed Successfully.")
         print(f"    Final Energy: {final_energy:.4f} eV")
         print(f"    Relaxed Lattice Constant: {relaxed_lattice_constant:.4f} Å")
         print(f"    Relaxed structure saved to {relaxed_filename}")
@@ -136,21 +116,4 @@ for crystal in crystals:
 
     except Exception as e:
         status = f"Failed ({e})"
-        print(f"  {crystal} ASE Fire2 Optimization Failed. Error: {e}") # Updated message
-    
-    optimization_results[crystal] = {
-        'initial_a': initial_a,
-        'final_energy': final_energy,
-        'relaxed_lattice_constant': relaxed_lattice_constant,
-        'status': status
-    }
-
-print("\n" + "="*80)
-print("All ASE Fire2 Optimizations Attempted.") # Updated message
-print("Final Summary of Results:")
-for crystal, results in optimization_results.items():
-    if results['status'] == "Converged":
-        print(f"  {crystal}: Initial a = {results['initial_a']:.4f} Å, Final a = {results['relaxed_lattice_constant']:.4f} Å, Energy = {results['final_energy']:.4f} eV")
-    else:
-        print(f"  {crystal}: Calculation {results['status']}")
-print("="*80)
+        print(f"  {crystal} ASE BFGS Optimization Failed. Error: {e}")
