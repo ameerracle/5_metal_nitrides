@@ -18,22 +18,24 @@ pseudopotential_files = {
     'N': 'N.pbe-n-radius_5.UPF'
 }
 
+# --- CORRECTED PATH DEFINITION ---
+# This makes slab_directory a relative path from where your script is run
+# If your 'Slabs' folder is directly inside '5_metal_nitrides', this is correct.
+slab_directory = 'Slabs' 
 
 # Choose the slab to test (e.g., TiN)
 test_material = 'TiN' # You can change this to 'VN', 'ScN', 'NbN', or 'ZrN'
 
-# Load the already-made slab structure from the current directory
-slab_filename = f'{test_material}_slab_100.traj'
+# Load the already-made slab structure using os.path.join for OS-agnosticism
+slab_filename = os.path.join(slab_directory, f'{test_material}_slab_100.traj')
 print(f"Attempting to load slab from: {slab_filename}")
 
 if not os.path.exists(slab_filename):
-    print(f"Error: Slab file not found at {slab_filename}. Please ensure the file exists in the current directory.")
+    print(f"Error: Slab file not found at {slab_filename}. Please ensure the file exists in this location relative to your current working directory.")
     exit() # Exit if the slab file doesn't exist
 
 slab = read(slab_filename)
-
-# Optional: View the loaded slab in ASE GUI (uncomment if you want to see it)
-# view(slab) 
+view(slab)
 
 fixed_ecutwfc = 40 # Ry, a reasonably high value for initial k-point test
 # --- Quantum ESPRESSO Calculator Settings (common for both tests) ---

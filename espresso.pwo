@@ -1,5 +1,5 @@
 
-     Program PWSCF v.7.4 starts on 26May2025 at 20: 0: 5 
+     Program PWSCF v.7.4 starts on 27May2025 at 19:11:11 
 
      This program is part of the open-source Quantum ESPRESSO suite
      for quantum simulation of materials; please cite
@@ -10,12 +10,12 @@
      in publications or presentations arising from this work. More details at
      http://www.quantum-espresso.org/quote
 
-     Parallel version (MPI & OpenMP), running on      40 processor cores
-     Number of MPI processes:                40
-     Threads/MPI process:                     1
+     Parallel version (MPI & OpenMP), running on      32 processor cores
+     Number of MPI processes:                 4
+     Threads/MPI process:                     8
 
      MPI processes distributed on     1 nodes
-     390092 MiB available memory on the printing compute node when the environment starts
+     12524 MiB available memory on the printing compute node when the environment starts
 
      Reading input from espresso.pwi
 Warning: card &CELL ignored
@@ -29,66 +29,72 @@ Warning: card / ignored
      Max number of different atomic species (ntypx) = 10
      Max number of k-points (npk) =  40000
      Max angular momentum in pseudopotentials (lmaxx) =  4
-
-     IMPORTANT: XC functional enforced from input :
-     Exchange-correlation= PBE
-                           (   1   4   3   4   0   0   0)
-     Any further DFT definition will be discarded
-     Please, verify this is what you really want
-
-     Found identity + ( -0.5000 -0.5000  0.0000) symmetry
+     Found identity + (  0.2500 -0.2500  0.0000) symmetry
      This is a supercell, fractional translations are disabled
      Message from routine setup:
      using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
 
-     K-points division:     npool     =       4
-     R & G space division:  proc/nbgrp/npool/nimage =      10
+     R & G space division:  proc/nbgrp/npool/nimage =       4
      Subspace diagonalization in iterative solution of the eigenvalue problem:
-     a serial algorithm will be used
+     one sub-group per band group will be used
+     ELPA distributed-memory algorithm (size of sub-group:  2*  2 procs)
 
 
      Parallelization info
      --------------------
      sticks:   dense  smooth     PW     G-vecs:    dense   smooth      PW
-     Min         193      97     29                 6357     2257     369
-     Max         194      98     30                 6359     2259     371
-     Sum        1933     973    293                63581    22575    3695
+     Min        1617     808    214               304693   107646   14710
+     Max        1618     809    216               304700   107653   14712
+     Sum        6469    3233    861              1218783   430593   58843
 
      Using Slab Decomposition
 
 
 
      bravais-lattice index     =            0
-     lattice parameter (alat)  =       7.9597  a.u.
-     unit-cell volume          =     504.3015 (a.u.)^3
-     number of atoms/cell      =            8
+     lattice parameter (alat)  =      15.9202  a.u.
+     unit-cell volume          =   12605.4251 (a.u.)^3
+     number of atoms/cell      =           64
      number of atomic types    =            2
-     number of electrons       =        68.00
-     number of Kohn-Sham states=           41
-     kinetic-energy cutoff     =      47.7741  Ry
-     charge density cutoff     =     382.1928  Ry
+     number of electrons       =       544.00
+     number of Kohn-Sham states=          272
+     kinetic-energy cutoff     =      40.0000  Ry
+     charge density cutoff     =     320.0000  Ry
      scf convergence threshold =      1.0E-07
      mixing beta               =       0.7000
      number of iterations used =            8  plain     mixing
-     Exchange-correlation= PBE
+     Exchange-correlation=  SLA  PW   PBX  PBC
                            (   1   4   3   4   0   0   0)
 
-     celldm(1)=   7.959701  celldm(2)=   0.000000  celldm(3)=   0.000000
+     celldm(1)=  15.920220  celldm(2)=   0.000000  celldm(3)=   0.000000
      celldm(4)=   0.000000  celldm(5)=   0.000000  celldm(6)=   0.000000
 
      crystal axes: (cart. coord. in units of alat)
-               a(1) = (   1.000000   0.000000  -0.000000 )  
-               a(2) = (  -0.000000   1.000000   0.000000 )  
-               a(3) = (  -0.000000  -0.000000   1.000000 )  
+               a(1) = (   1.000000   0.000000   0.000000 )  
+               a(2) = (   0.000000   1.000000   0.000000 )  
+               a(3) = (   0.000000   0.000000   3.123995 )  
 
      reciprocal axes: (cart. coord. in units 2 pi/alat)
                b(1) = (  1.000000  0.000000  0.000000 )  
                b(2) = (  0.000000  1.000000  0.000000 )  
-               b(3) = (  0.000000  0.000000  1.000000 )  
+               b(3) = (  0.000000  0.000000  0.320103 )  
 
 
-     PseudoPot. # 1 for Ti read from file:
-     /nfs/home/a/a_nizami/pseudo_dir/ti_pbe_v1.4.uspp.F.UPF
+     PseudoPot. # 1 for N  read from file:
+     /home/ameerracle/Tr_Metals_QE/pseudo_dir/N.pbe-n-radius_5.UPF
+     MD5 check sum: 16739722b17309cd8fe442a2ace49922
+     Pseudo is Ultrasoft + core correction, Zval =  5.0
+     Generated using "atomic" code by A. Dal Corso  v.5.1
+     Using radial grid of 1085 points,  4 beta functions with: 
+                l(1) =   0
+                l(2) =   0
+                l(3) =   1
+                l(4) =   1
+     Q(r) pseudized with 0 coefficients 
+
+
+     PseudoPot. # 2 for Ti read from file:
+     /home/ameerracle/Tr_Metals_QE/pseudo_dir/ti_pbe_v1.4.uspp.F.UPF
      MD5 check sum: 88a00a6731bd790ddea75d31a80cb452
      Pseudo is Ultrasoft + core correction, Zval = 12.0
      Generated by new atomic code, or converted to UPF format
@@ -102,179 +108,101 @@ Warning: card / ignored
      Q(r) pseudized with  6 coefficients,  rinner =    1.000   1.000   1.000
                                                        1.000   1.000
 
-     PseudoPot. # 2 for N  read from file:
-     /nfs/home/a/a_nizami/pseudo_dir/N.pbe-n-radius_5.UPF
-     MD5 check sum: 16739722b17309cd8fe442a2ace49922
-     Pseudo is Ultrasoft + core correction, Zval =  5.0
-     Generated using "atomic" code by A. Dal Corso  v.5.1
-     Using radial grid of 1085 points,  4 beta functions with: 
-                l(1) =   0
-                l(2) =   0
-                l(3) =   1
-                l(4) =   1
-     Q(r) pseudized with 0 coefficients 
-
-
      atomic species   valence    mass     pseudopotential
-     Ti               12.00    47.86700     Ti( 1.00)
      N                 5.00    14.00700     N ( 1.00)
+     Ti               12.00    47.86700     Ti( 1.00)
 
-     48 Sym. Ops., with inversion, found
+      8 Sym. Ops. (no inversion) found
 
 
 
    Cartesian axes
 
      site n.     atom                  positions (alat units)
-         1        Ti     tau(   1) = (   0.0000000   0.0000000   0.0000000  )
-         2        Ti     tau(   2) = (   0.5000000   0.5000000   0.0000000  )
-         3        Ti     tau(   3) = (   0.5000000   0.0000000   0.5000000  )
-         4        Ti     tau(   4) = (  -0.0000000   0.5000000   0.5000000  )
-         5        N      tau(   5) = (   0.0000000  -0.0000000   0.5000000  )
-         6        N      tau(   6) = (   0.5000000  -0.0000000   0.0000000  )
-         7        N      tau(   7) = (  -0.0000000   0.5000000   0.0000000  )
-         8        N      tau(   8) = (   0.5000000   0.5000000   0.5000000  )
+         1        N      tau(   1) = (   0.0000000   0.2500000   1.1869975  )
+         2        N      tau(   2) = (   0.0000000   0.0000000   1.4369975  )
+         3        N      tau(   3) = (   0.2500000   0.0000000   1.1869975  )
+         4        N      tau(   4) = (   0.2500000   0.2500000   1.4369975  )
+         5        Ti     tau(   5) = (   0.0000000   0.0000000   1.1869975  )
+         6        Ti     tau(   6) = (   0.2500000   0.0000000   1.4369975  )
+         7        Ti     tau(   7) = (   0.0000000   0.2500000   1.4369975  )
+         8        Ti     tau(   8) = (   0.2500000   0.2500000   1.1869975  )
+         9        N      tau(   9) = (   0.0000000   0.2500000   1.6869975  )
+        10        N      tau(  10) = (   0.0000000   0.0000000   1.9369975  )
+        11        N      tau(  11) = (   0.2500000   0.0000000   1.6869975  )
+        12        N      tau(  12) = (   0.2500000   0.2500000   1.9369975  )
+        13        Ti     tau(  13) = (   0.0000000   0.0000000   1.6869975  )
+        14        Ti     tau(  14) = (   0.2500000   0.0000000   1.9369975  )
+        15        Ti     tau(  15) = (   0.0000000   0.2500000   1.9369975  )
+        16        Ti     tau(  16) = (   0.2500000   0.2500000   1.6869975  )
+        17        N      tau(  17) = (   0.0000000   0.7500000   1.1869975  )
+        18        N      tau(  18) = (   0.0000000   0.5000000   1.4369975  )
+        19        N      tau(  19) = (   0.2500000   0.5000000   1.1869975  )
+        20        N      tau(  20) = (   0.2500000   0.7500000   1.4369975  )
+        21        Ti     tau(  21) = (   0.0000000   0.5000000   1.1869975  )
+        22        Ti     tau(  22) = (   0.2500000   0.5000000   1.4369975  )
+        23        Ti     tau(  23) = (   0.0000000   0.7500000   1.4369975  )
+        24        Ti     tau(  24) = (   0.2500000   0.7500000   1.1869975  )
+        25        N      tau(  25) = (   0.0000000   0.7500000   1.6869975  )
+        26        N      tau(  26) = (   0.0000000   0.5000000   1.9369975  )
+        27        N      tau(  27) = (   0.2500000   0.5000000   1.6869975  )
+        28        N      tau(  28) = (   0.2500000   0.7500000   1.9369975  )
+        29        Ti     tau(  29) = (   0.0000000   0.5000000   1.6869975  )
+        30        Ti     tau(  30) = (   0.2500000   0.5000000   1.9369975  )
+        31        Ti     tau(  31) = (   0.0000000   0.7500000   1.9369975  )
+        32        Ti     tau(  32) = (   0.2500000   0.7500000   1.6869975  )
+        33        N      tau(  33) = (   0.5000000   0.2500000   1.1869975  )
+        34        N      tau(  34) = (   0.5000000   0.0000000   1.4369975  )
+        35        N      tau(  35) = (   0.7500000   0.0000000   1.1869975  )
+        36        N      tau(  36) = (   0.7500000   0.2500000   1.4369975  )
+        37        Ti     tau(  37) = (   0.5000000   0.0000000   1.1869975  )
+        38        Ti     tau(  38) = (   0.7500000   0.0000000   1.4369975  )
+        39        Ti     tau(  39) = (   0.5000000   0.2500000   1.4369975  )
+        40        Ti     tau(  40) = (   0.7500000   0.2500000   1.1869975  )
+        41        N      tau(  41) = (   0.5000000   0.2500000   1.6869975  )
+        42        N      tau(  42) = (   0.5000000   0.0000000   1.9369975  )
+        43        N      tau(  43) = (   0.7500000   0.0000000   1.6869975  )
+        44        N      tau(  44) = (   0.7500000   0.2500000   1.9369975  )
+        45        Ti     tau(  45) = (   0.5000000   0.0000000   1.6869975  )
+        46        Ti     tau(  46) = (   0.7500000   0.0000000   1.9369975  )
+        47        Ti     tau(  47) = (   0.5000000   0.2500000   1.9369975  )
+        48        Ti     tau(  48) = (   0.7500000   0.2500000   1.6869975  )
+        49        N      tau(  49) = (   0.5000000   0.7500000   1.1869975  )
+        50        N      tau(  50) = (   0.5000000   0.5000000   1.4369975  )
+        51        N      tau(  51) = (   0.7500000   0.5000000   1.1869975  )
+        52        N      tau(  52) = (   0.7500000   0.7500000   1.4369975  )
+        53        Ti     tau(  53) = (   0.5000000   0.5000000   1.1869975  )
+        54        Ti     tau(  54) = (   0.7500000   0.5000000   1.4369975  )
+        55        Ti     tau(  55) = (   0.5000000   0.7500000   1.4369975  )
+        56        Ti     tau(  56) = (   0.7500000   0.7500000   1.1869975  )
+        57        N      tau(  57) = (   0.5000000   0.7500000   1.6869975  )
+        58        N      tau(  58) = (   0.5000000   0.5000000   1.9369975  )
+        59        N      tau(  59) = (   0.7500000   0.5000000   1.6869975  )
+        60        N      tau(  60) = (   0.7500000   0.7500000   1.9369975  )
+        61        Ti     tau(  61) = (   0.5000000   0.5000000   1.6869975  )
+        62        Ti     tau(  62) = (   0.7500000   0.5000000   1.9369975  )
+        63        Ti     tau(  63) = (   0.5000000   0.7500000   1.9369975  )
+        64        Ti     tau(  64) = (   0.7500000   0.7500000   1.6869975  )
 
-     --------------------------------------------
-     DFT-D3 Dispersion Correction (3-body terms):
-     --------------------------------------------
-       Reference C6 values for interpolation: 
-
-         atom   Coordination number   C6
-         N          0.000            50.54
-         N          0.994            44.25
-         N          2.014            39.35
-         N          2.990            31.16
-         Ti         0.000          2723.84
-         Ti         1.830           604.00
-         Ti         3.868           643.18
-
-       Values used:
-
-         atom   Coordination number  R0_AB[au]  C6      C8
-         Ti        15.946            3.557    643.18  76289.64
-         Ti        15.946            3.557    643.18  76289.64
-         Ti        15.946            3.557    643.18  76289.64
-         Ti        15.946            3.557    643.18  76289.64
-         N          5.968            2.478     31.16    687.49
-         N          5.968            2.478     31.16    687.49
-         N          5.968            2.478     31.16    687.49
-         N          5.968            2.478     31.16    687.49
-
-         Molecular C6 ( Ry / a.u.^6 ) =     15030.15
-
-
-     number of k points=    20  Gaussian smearing, width (Ry)=  0.0100
+     number of k points=     3
                        cart. coord. in units 2pi/alat
-        k(    1) = (   0.0000000   0.0000000   0.0000000), wk =   0.0058309
-        k(    2) = (   0.0000000   0.0000000   0.1428571), wk =   0.0349854
-        k(    3) = (   0.0000000   0.0000000   0.2857143), wk =   0.0349854
-        k(    4) = (   0.0000000   0.0000000   0.4285714), wk =   0.0349854
-        k(    5) = (   0.0000000   0.1428571   0.1428571), wk =   0.0699708
-        k(    6) = (   0.0000000   0.1428571   0.2857143), wk =   0.1399417
-        k(    7) = (   0.0000000   0.1428571   0.4285714), wk =   0.1399417
-        k(    8) = (   0.0000000   0.2857143   0.2857143), wk =   0.0699708
-        k(    9) = (   0.0000000   0.2857143   0.4285714), wk =   0.1399417
-        k(   10) = (   0.0000000   0.4285714   0.4285714), wk =   0.0699708
-        k(   11) = (   0.1428571   0.1428571   0.1428571), wk =   0.0466472
-        k(   12) = (   0.1428571   0.1428571   0.2857143), wk =   0.1399417
-        k(   13) = (   0.1428571   0.1428571   0.4285714), wk =   0.1399417
-        k(   14) = (   0.1428571   0.2857143   0.2857143), wk =   0.1399417
-        k(   15) = (   0.1428571   0.2857143   0.4285714), wk =   0.2798834
-        k(   16) = (   0.1428571   0.4285714   0.4285714), wk =   0.1399417
-        k(   17) = (   0.2857143   0.2857143   0.2857143), wk =   0.0466472
-        k(   18) = (   0.2857143   0.2857143   0.4285714), wk =   0.1399417
-        k(   19) = (   0.2857143   0.4285714   0.4285714), wk =   0.1399417
-        k(   20) = (   0.4285714   0.4285714   0.4285714), wk =   0.0466472
+        k(    1) = (   0.0000000   0.0000000   0.0000000), wk =   0.2222222
+        k(    2) = (   0.0000000   0.3333333   0.0000000), wk =   0.8888889
+        k(    3) = (   0.3333333   0.3333333   0.0000000), wk =   0.8888889
 
-     Dense  grid:    63581 G-vectors     FFT dimensions: (  50,  50,  50)
+     Dense  grid:  1218783 G-vectors     FFT dimensions: (  96,  96, 288)
 
-     Smooth grid:    22575 G-vectors     FFT dimensions: (  36,  36,  36)
+     Smooth grid:   430593 G-vectors     FFT dimensions: (  72,  72, 216)
 
-     Estimated max dynamical RAM per process >      13.21 MB
+     Estimated max dynamical RAM per process >       1.55 GB
 
-     Estimated total dynamical RAM >     481.94 MB
+     Estimated total dynamical RAM >       6.21 GB
 
-     Check: negative core charge=   -0.000011
+     Check: negative core charge=   -0.000007
 
      Initial potential from superposition of free atoms
 
-     starting charge      63.9998, renormalised to      68.0000
+     starting charge     511.9984, renormalised to     544.0000
 
-     negative rho (up, down):  3.788E-03 0.000E+00
-     Starting wfcs are   56 randomized atomic wfcs
-
-     total cpu time spent up to now is       12.9 secs
-
-     per-process dynamical memory:    21.5 Mb
-
-     Self-consistent Calculation
-
-     iteration #  1     ecut=    47.77 Ry     beta= 0.70
-     Davidson diagonalization with overlap
-     ethr =  1.00E-02,  avg # of iterations =  3.0
-
-     negative rho (up, down):  5.601E-03 0.000E+00
-
-     total cpu time spent up to now is       14.2 secs
-
-     total energy              =    -557.67647448 Ry
-     estimated scf accuracy    <       2.44256948 Ry
-
-     iteration #  2     ecut=    47.77 Ry     beta= 0.70
-     Davidson diagonalization with overlap
-     ethr =  3.59E-03,  avg # of iterations =  6.2
-
-     negative rho (up, down):  3.059E-03 0.000E+00
-
-     total cpu time spent up to now is       15.1 secs
-
-     total energy              =    -556.41519335 Ry
-     estimated scf accuracy    <      14.29273653 Ry
-
-     iteration #  3     ecut=    47.77 Ry     beta= 0.70
-     Davidson diagonalization with overlap
-     ethr =  3.59E-03,  avg # of iterations =  4.5
-
-     negative rho (up, down):  3.037E-03 0.000E+00
-
-     total cpu time spent up to now is       15.9 secs
-
-     total energy              =    -559.01331145 Ry
-     estimated scf accuracy    <       0.12885871 Ry
-
-     iteration #  4     ecut=    47.77 Ry     beta= 0.70
-     Davidson diagonalization with overlap
-     ethr =  1.89E-04,  avg # of iterations =  3.1
-
-     negative rho (up, down):  3.056E-03 0.000E+00
-
-     total cpu time spent up to now is       16.8 secs
-
-     total energy              =    -559.03486135 Ry
-     estimated scf accuracy    <       0.01656788 Ry
-
-     iteration #  5     ecut=    47.77 Ry     beta= 0.70
-     Davidson diagonalization with overlap
-     ethr =  2.44E-05,  avg # of iterations =  8.3
-
-     negative rho (up, down):  3.065E-03 0.000E+00
-
-     total cpu time spent up to now is       17.8 secs
-
-     total energy              =    -559.03609202 Ry
-     estimated scf accuracy    <       0.01286831 Ry
-
-     iteration #  6     ecut=    47.77 Ry     beta= 0.70
-     Davidson diagonalization with overlap
-     ethr =  1.89E-05,  avg # of iterations =  3.7
-
-     negative rho (up, down):  3.085E-03 0.000E+00
-
-     total cpu time spent up to now is       18.5 secs
-
-     total energy              =    -559.03539177 Ry
-     estimated scf accuracy    <       0.00449296 Ry
-
-     iteration #  7     ecut=    47.77 Ry     beta= 0.70
-     Davidson diagonalization with overlap
+     negative rho (up, down):  5.784E-02 0.000E+00
+     Starting wfcs are  448 randomized atomic wfcs
