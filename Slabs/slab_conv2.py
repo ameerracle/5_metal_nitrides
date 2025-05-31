@@ -19,7 +19,7 @@ pseudopotential_files = {
 }
 
 # Define the list of materials to process (all except TiN, as requested)
-materials_to_process = ['VN', 'ScN']
+materials_to_process = ['TiN']
 
 # Path to the directory where the slab files are located
 slab_directory = 'Slabs' 
@@ -32,7 +32,8 @@ fixed_ecutwfc = 45 # Ry, a reasonably high value for initial k-point test
 input_data = {
     'control': {
         'calculation': 'scf',
-        'outdir': './QE_output', # Directory for QE temporary files and output
+        'outdir': './QE_output',
+
 
     },
     'system': {
@@ -45,7 +46,10 @@ input_data = {
         # 'prefix' will be set inside the loop for each material
     },
     'electrons': {
-        'conv_thr': 1.0e-7, # SCF convergence threshold in Ry
+        'conv_thr': 1.0e-6, # SCF convergence threshold in Ry
+        'mixing_mode': 'TF', # <-- Add this line: Use Thomas-Fermi mixing for metals
+        'mixing_beta': 0.4,  # <-- Add this line: Adjust mixing beta (e.g., 
+        'electron_maxstep': 200, # Directory for QE temporary files and output
     }
 }
 
